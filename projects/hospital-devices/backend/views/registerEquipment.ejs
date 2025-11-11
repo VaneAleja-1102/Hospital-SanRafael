@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar Equipo</title>
+</head>
+<body>
+  <h2>Registrar Equipo</h2>
+
+  <% if (message) { %>
+    <p style="color: green; font-weight: bold;"><%= message %></p>
+    <a href="/equipments/list">
+      <button>Ver equipos registrados</button>
+    </a>
+  <% } %>
+
+  <form action="/equipments/register" method="POST">
+    <label>Nombre del equipo:</label>
+    <input type="text" name="name" required> <br>
+
+    <label>Tipo:</label>
+    <input type="text" name="type" required> <br>
+
+    <label>Marca:</label>
+    <input type="text" name="brand" required> <br>
+
+    <label>Serial:</label>
+    <input type="text" name="serial_number" required> <br><br>
+
+    <button type="submit">Registrar</button>
+  </form>
+</body>
+</html>

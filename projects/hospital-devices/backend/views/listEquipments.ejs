@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Equipos Registrados</title>
+</head>
+<body>
+  <h2>Lista de Equipos Registrados</h2>
+
+  <a href="/equipments/register"><button>Registrar nuevo</button></a>
+  <br><br>
+
+  <table border="1" cellpadding="8">
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Tipo</th>
+      <th>Marca</th>
+      <th>Serial</th>
+    </tr>
+
+    <% equipments.forEach(eq => { %>
+      <tr>
+        <td><%= eq.id %></td>
+        <td><%= eq.name %></td>
+        <td><%= eq.type %></td>
+        <td><%= eq.brand %></td>
+        <td><%= eq.serial_number %></td>
+      </tr>
+    <% }) %>
+
+  </table>
+
+</body>
+</html>
