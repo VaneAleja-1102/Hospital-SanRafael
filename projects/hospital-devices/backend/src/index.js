@@ -1,4 +1,3 @@
-// backend/index.js
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -9,18 +8,18 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// === 🌐 MIDDLEWARES ===
+// === 🌐 CORS ===
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+    origin: "*", // En producción Render usa dominio distinto
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// === 🖼️ SERVIR IMÁGENES SUBIDAS ===
-// 👉 Esta ruta permite acceder a las imágenes en: http://localhost:4000/uploads/archivo.jpg
+// === 🖼️ SERVIR ARCHIVOS SUBIDOS ===
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // === 🔐 JWT Middleware ===
@@ -41,7 +40,7 @@ const verifyJwt = (req, res, next) => {
   }
 };
 
-// === 🚏 ROUTES ===
+// === ROUTES ===
 const authRouter = require("./routes/auth");
 const equipmentsRouter = require("./routes/equipments");
 const transactionsRouter = require("./routes/transactions");
@@ -50,18 +49,24 @@ app.use("/api/auth", authRouter);
 app.use("/api/equipments", verifyJwt, equipmentsRouter);
 app.use("/api/transactions", verifyJwt, transactionsRouter);
 
-// === 🏠 RUTA PRINCIPAL ===
-app.get("/", (req, res) => {
-  res.json({ ok: true, message: "✅ Hospital Devices API funcionando correctamente" });
+// === 🟢 SERVIR FRONTEND EN PRODUCCIÓN ===
+// Render NO sirve el frontend solo. Tú lo sirves desde Node.
+const clientPath = path.join(__dirname, "../../frontend/build");
+
+app.use(express.static(clientPath));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(clientPath, "index.html"));
 });
 
-// === 🚀 SERVER START ===
+// === START SERVER ===
 app.listen(PORT, async () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+
   try {
     await sequelize.authenticate();
-    console.log("✅ DB connected successfully");
+    console.log("🟢 DB connected");
   } catch (err) {
-    console.error("❌ DB connection failed:", err);
+    console.error("🔴 DB connection error:", err);
   }
 });
