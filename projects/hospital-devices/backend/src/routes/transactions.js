@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { Transaction, Equipment, User } = require('../../models');
 const { authenticateToken } = require('../middlewares/auth');
+const { Op } = require('sequelize');
 
-// Obtener todas las transacciones (historial completo)
+// === 🧾 Obtener todas las transacciones (historial completo) ===
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const transactions = await Transaction.findAll({
@@ -11,7 +12,7 @@ router.get('/', authenticateToken, async (req, res) => {
         {
           model: Equipment,
           as: 'Equipment',
-          attributes: ['id', 'type', 'brand', 'model', 'serial']
+          attributes: ['id', 'type', 'brand', 'model', 'serial', 'imageUrl']
         },
         {
           model: User,
@@ -24,15 +25,66 @@ router.get('/', authenticateToken, async (req, res) => {
 
     res.json(transactions);
   } catch (error) {
-    console.error('Error al obtener transacciones:', error);
-    res.status(500).json({ 
+    console.error('❌ Error al obtener transacciones:', error);
+    res.status(500).json({
       message: 'Error al obtener el historial de movimientos',
-      error: error.message 
+      error: error.message
     });
   }
 });
 
-// Crear una nueva transacción
+// === ⏳ Obtener ingresos pendientes (para egresos) ===
+router.get('/pending-entries', authenticateToken, async (req, res) => {
+  try {
+    const { equipmentId } = req.query;
+
+    const ingresos = await Transaction.findAll({
+      where: { type: 'Ingreso' },
+      include: [
+        {
+          model: Equipment,
+          as: 'Equipment',
+          attributes: ['id', 'type', 'brand', 'model', 'serial', 'imageUrl']
+        },
+        {
+          model: User,
+          as: 'User',
+          attributes: ['id', 'name', 'email']
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    const result = [];
+
+    for (const ingreso of ingresos) {
+      const existeEgreso = await Transaction.findOne({
+        where: {
+          equipmentId: ingreso.equipmentId,
+          type: 'Egreso',
+          createdAt: { [Op.gt]: ingreso.createdAt }
+        }
+      });
+
+      // Solo se agregan los ingresos sin egreso posterior
+      if (!existeEgreso) {
+        if (!equipmentId || ingreso.equipmentId == equipmentId) {
+          result.push(ingreso);
+        }
+      }
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Error al obtener ingresos pendientes:', error);
+    res.status(500).json({
+      message: 'Error al obtener ingresos pendientes',
+      error: error.message
+    });
+  }
+});
+
+// === 🆕 Crear una nueva transacción (Ingreso o Egreso) ===
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { equipmentId, type, description } = req.body;
@@ -56,7 +108,7 @@ router.post('/', authenticateToken, async (req, res) => {
         {
           model: Equipment,
           as: 'Equipment',
-          attributes: ['id', 'type', 'brand', 'model', 'serial']
+          attributes: ['id', 'type', 'brand', 'model', 'serial', 'imageUrl']
         },
         {
           model: User,
@@ -68,10 +120,10 @@ router.post('/', authenticateToken, async (req, res) => {
 
     res.status(201).json(fullTransaction);
   } catch (error) {
-    console.error('Error al crear transacción:', error);
-    res.status(500).json({ 
+    console.error('❌ Error al crear transacción:', error);
+    res.status(500).json({
       message: 'Error al registrar el movimiento',
-      error: error.message 
+      error: error.message
     });
   }
 });

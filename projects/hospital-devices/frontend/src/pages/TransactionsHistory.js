@@ -93,7 +93,11 @@ export default function TransactionsHistory() {
       padding: '12px 24px',
       borderRadius: '8px',
       fontSize: '16px',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      transition: '0.3s',
+    },
+    exportBtnHover: {
+      backgroundColor: '#059669'
     },
     loading: {
       textAlign: 'center',
@@ -188,21 +192,24 @@ export default function TransactionsHistory() {
     <div style={styles.container}>
       <div style={styles.header}>
         <h1 style={styles.title}>📊 Historial de Movimientos</h1>
-        <button style={styles.exportBtn} onClick={exportToCSV}>
+        <button
+          style={styles.exportBtn}
+          onMouseOver={(e) => e.target.style.backgroundColor = styles.exportBtnHover.backgroundColor}
+          onMouseOut={(e) => e.target.style.backgroundColor = styles.exportBtn.backgroundColor}
+          onClick={exportToCSV}
+        >
           📥 Exportar CSV
         </button>
       </div>
 
-      {error && (
-        <div style={styles.error}>
-          {error}
-        </div>
-      )}
+      {error && <div style={styles.error}>{error}</div>}
 
       {transactions.length === 0 ? (
         <div style={styles.noData}>
           <p style={styles.noDataText}>📭 No se encontraron registros</p>
-          <p style={styles.noDataSubtitle}>Los movimientos aparecerán aquí cuando se registren entradas o salidas de equipos</p>
+          <p style={styles.noDataSubtitle}>
+            Los movimientos aparecerán aquí cuando se registren entradas o salidas de equipos
+          </p>
         </div>
       ) : (
         <div style={styles.tableContainer}>

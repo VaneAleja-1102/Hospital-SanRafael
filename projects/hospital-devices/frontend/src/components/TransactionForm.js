@@ -1,7 +1,7 @@
-// frontend/src/components/TransactionForm.js
 import React, { useEffect, useState } from "react";
 import { API_BASE } from "../config";
 import { useNavigate } from "react-router-dom";
+import "./TransactionForm.css";
 
 export default function TransactionForm() {
   const [equipments, setEquipments] = useState([]);
@@ -13,7 +13,7 @@ export default function TransactionForm() {
     registeredBy: "",
     description: "",
     isWorking: true,
-    entryTransactionId: ""
+    entryTransactionId: "",
   });
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -33,30 +33,23 @@ export default function TransactionForm() {
     }
   }, [form.type, form.equipmentId]);
 
-  // 🔧 Carga de equipos con fallback
   const loadEquipments = async () => {
     const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token encontrado. Inicia sesión nuevamente.");
+      return;
+    }
+
     try {
-      let res = await fetch(`${API_BASE}/api/equipments`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`${API_BASE}/equipments`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
-
-      // Si /equipments no existe, probar con /api/equipos
-      if (res.status === 404) {
-        console.warn("Ruta /equipments no encontrada. Probando /api/equipos...");
-        res = await fetch(`${API_BASE}/api/equipos`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
-
       if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
-
       const data = await res.json();
-      const arr = Array.isArray(data)
-        ? data
-        : data.equipments || data.data || [];
-
-      setEquipments(arr);
+      setEquipments(data.equipments || []);
     } catch (err) {
       console.error("❌ Error cargando equipos:", err);
       setError("Error al cargar la lista de equipos");
@@ -71,17 +64,16 @@ export default function TransactionForm() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json();
-      const arr = Array.isArray(data) ? data : data.data || [];
-      setPendingEntries(arr);
+      setPendingEntries(Array.isArray(data) ? data : data.data || []);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const handleEquipmentChange = (equipmentId) => {
-    const equipment = equipments.find((e) => e.id === Number(equipmentId));
-    setSelectedEquipment(equipment || null);
-    setForm({ ...form, equipmentId, entryTransactionId: "" });
+  const handleEquipmentSelect = (eq) => {
+    setForm({ ...form, equipmentId: eq.id, entryTransactionId: "" });
+    setSelectedEquipment(eq);
+    if (form.type === "Egreso") loadPendingEntries(eq.id);
   };
 
   const handlePhotoChange = (e) => {
@@ -99,18 +91,25 @@ export default function TransactionForm() {
     setLoading(true);
     setError("");
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token. Inicia sesión nuevamente.");
+      setLoading(false);
+      return;
+    }
+
     if (selectedEquipment?.isBiomedical && !photoFile && !photoPreview) {
       setError("Este equipo biomédico requiere una foto");
       setLoading(false);
       return;
     }
+
     if (form.type === "Egreso" && !form.entryTransactionId) {
       setError("Debe seleccionar el registro de ingreso correspondiente");
       setLoading(false);
       return;
     }
 
-    const token = localStorage.getItem("token");
     try {
       const payload = {
         equipmentId: Number(form.equipmentId),
@@ -120,10 +119,10 @@ export default function TransactionForm() {
         isWorking: form.isWorking,
         photoUrl: photoPreview || null,
         entryTransactionId:
-          form.type === "Salida" ? Number(form.entryTransactionId) : null,
+          form.type === "Egreso" ? Number(form.entryTransactionId) : null,
       };
 
-      const res = await fetch(`${API_BASE}/api/transactions`, {
+      const res = await fetch(`${API_BASE}/transactions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -149,43 +148,56 @@ export default function TransactionForm() {
 
   return (
     <div className="form-container">
-      <h2>📝 Registrar Ingreso/Salida</h2>
+      <h2>📝 Registrar Ingreso / Salida</h2>
       {error && <div className="alert alert-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
-        {/* Tipo */}
         <div className="form-group">
-          <label>Tipo</label>
+          <label>Tipo de Movimiento</label>
           <select
             value={form.type}
             onChange={(e) =>
-              setForm({ ...form, type: e.target.value, entryTransactionId: "" })
+              setForm({
+                ...form,
+                type: e.target.value,
+                entryTransactionId: "",
+                equipmentId: "",
+              })
             }
           >
             <option value="Ingreso">Ingreso</option>
-            <option value="Salida">Salida</option>
+            <option value="Egreso">Egreso</option>
           </select>
         </div>
 
-        {/* Equipos */}
         <div className="form-group">
-          <label>Seleccionar Equipo</label>
-          <select
-            value={form.equipmentId}
-            onChange={(e) => handleEquipmentChange(e.target.value)}
-            required
-          >
-            <option value="">-- Seleccionar --</option>
+          <label>Selecciona el equipo</label>
+          <div className="equipment-grid">
             {equipments.map((eq) => (
-              <option key={eq.id} value={eq.id}>
-                {eq.type} {eq.brand || ""} {eq.model || ""}{" "}
-                {eq.serial ? `(${eq.serial})` : ""}
-              </option>
+              <div
+                key={eq.id}
+                className={`equipment-card ${
+                  form.equipmentId === eq.id ? "selected" : ""
+                }`}
+                onClick={() => handleEquipmentSelect(eq)}
+              >
+                <img
+                  src={
+                    eq.imageUrl
+                      ? `${API_BASE.replace("/api", "")}${eq.imageUrl}`
+                      : "https://via.placeholder.com/120?text=Sin+imagen"
+                  }
+                  alt={eq.type}
+                  className="equipment-image"
+                />
+                <p className="equipment-name">
+                  {eq.type} - {eq.brand || ""} {eq.model || ""}
+                </p>
+              </div>
             ))}
-          </select>
+          </div>
         </div>
 
-        {/* Si es egreso */}
         {form.type === "Egreso" && form.equipmentId && (
           <div className="form-group">
             <label>Seleccionar Ingreso</label>
@@ -211,7 +223,6 @@ export default function TransactionForm() {
           </div>
         )}
 
-        {/* Registrado por */}
         <div className="form-group">
           <label>Registrado por</label>
           <input
@@ -223,7 +234,6 @@ export default function TransactionForm() {
           />
         </div>
 
-        {/* Descripción */}
         <div className="form-group">
           <label>Descripción</label>
           <textarea
@@ -236,7 +246,6 @@ export default function TransactionForm() {
           ></textarea>
         </div>
 
-        {/* Estado */}
         <div className="form-group">
           <label>
             <input
@@ -250,7 +259,6 @@ export default function TransactionForm() {
           </label>
         </div>
 
-        {/* Foto */}
         {selectedEquipment?.isBiomedical && (
           <div className="form-group">
             <label>Foto del equipo (requerida)</label>
@@ -270,7 +278,6 @@ export default function TransactionForm() {
           </div>
         )}
 
-        {/* Botón */}
         <button type="submit" disabled={loading}>
           {loading ? "⏳ Registrando..." : `✓ Registrar ${form.type}`}
         </button>

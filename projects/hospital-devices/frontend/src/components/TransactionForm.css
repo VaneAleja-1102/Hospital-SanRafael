@@ -1,0 +1,50 @@
+.form-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.equipment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.equipment-card {
+  border: 2px solid transparent;
+  padding: 0.5rem;
+  border-radius: 10px;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  background: #fafafa;
+}
+
+.equipment-card.selected {
+  border-color: #007bff;
+  background: #eaf3ff;
+}
+
+.equipment-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.equipment-name {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.alert-error {
+  background: #ffdddd;
+  color: #b00;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}

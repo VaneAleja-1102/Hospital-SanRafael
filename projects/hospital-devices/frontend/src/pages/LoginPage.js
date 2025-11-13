@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import GoogleLoginButton from '../components/GoogleLoginButton';
 
 export default function LoginPage({ onLogin }) {
+  const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -25,7 +27,7 @@ export default function LoginPage({ onLogin }) {
 
     try {
       const endpoint = isRegister ? '/auth/register' : '/auth/login';
-      const body = isRegister 
+      const body = isRegister
         ? { email: formData.email, password: formData.password, name: formData.name }
         : { email: formData.email, password: formData.password };
 
@@ -35,16 +37,14 @@ export default function LoginPage({ onLogin }) {
         body: JSON.stringify(body)
       });
 
-      // Verificar si la respuesta es JSON
       const contentType = res.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('El servidor no está respondiendo correctamente. Verifica que el backend esté corriendo en http://localhost:4000');
+        throw new Error('⚠️ El servidor no está respondiendo correctamente. Verifica que el backend esté corriendo en http://localhost:4000');
       }
 
       const data = await res.json();
 
       if (!res.ok) {
-        // Mensajes más específicos
         if (res.status === 401 && !isRegister) {
           throw new Error('Usuario no encontrado. Por favor regístrate primero.');
         }
@@ -54,7 +54,9 @@ export default function LoginPage({ onLogin }) {
       // Guardar token y usuario
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+
       onLogin(data.user);
+      navigate('/');
 
     } catch (err) {
       if (err.message.includes('Failed to fetch')) {
@@ -67,11 +69,16 @@ export default function LoginPage({ onLogin }) {
     }
   };
 
+  const handleGoogleSuccess = (user) => {
+    onLogin(user);
+    navigate('/');
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2>{isRegister ? 'Crear cuenta' : 'Iniciar sesión'}</h2>
-        
+
         {error && <div style={styles.error}>{error}</div>}
 
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -92,7 +99,7 @@ export default function LoginPage({ onLogin }) {
           )}
 
           <div style={styles.formGroup}>
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Correo electrónico</label>
             <input
               id="email"
               type="email"
@@ -133,7 +140,7 @@ export default function LoginPage({ onLogin }) {
           <span>O</span>
         </div>
 
-        <GoogleLoginButton onLoginSuccess={onLogin} />
+        <GoogleLoginButton onLoginSuccess={handleGoogleSuccess} />
 
         <div style={styles.toggle}>
           {isRegister ? (
@@ -169,15 +176,17 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '80vh',
-    padding: '20px'
+    padding: '20px',
+    backgroundColor: '#f5f5f5',
   },
   card: {
     backgroundColor: 'white',
     padding: '40px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    borderRadius: '12px',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
     maxWidth: '400px',
-    width: '100%'
+    width: '100%',
+    transition: 'transform 0.2s ease',
   },
   form: {
     marginTop: '20px'
@@ -190,7 +199,7 @@ const styles = {
     padding: '10px',
     fontSize: '14px',
     border: '1px solid #ddd',
-    borderRadius: '4px',
+    borderRadius: '6px',
     boxSizing: 'border-box',
     marginTop: '5px'
   },
@@ -200,16 +209,17 @@ const styles = {
     backgroundColor: '#1a73e8',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     fontSize: '16px',
     cursor: 'pointer',
-    marginTop: '10px'
+    marginTop: '10px',
+    transition: 'background-color 0.3s ease',
   },
   error: {
     backgroundColor: '#fee',
     color: '#c33',
     padding: '10px',
-    borderRadius: '4px',
+    borderRadius: '6px',
     marginBottom: '15px',
     fontSize: '14px'
   },
