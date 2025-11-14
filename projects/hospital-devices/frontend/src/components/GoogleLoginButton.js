@@ -2,24 +2,11 @@ import React, { useEffect } from "react";
 import { API_BASE } from "../config";
 
 export default function GoogleLoginButton({ onLoginSuccess }) {
-  useEffect(() => {
-    /* global google */
-    if (window.google) {
-      google.accounts.id.initialize({
-        client_id: "815972207565-etag6mup0ekbg4crmfvpauqejb00936e.apps.googleusercontent.com", // puedes moverlo a .env.local si prefieres
-        callback: handleCredentialResponse,
-        ux_mode: "popup",
-      });
 
-      google.accounts.id.renderButton(
-        document.getElementById("googleSignInDiv"),
-        { theme: "outline", size: "large" }
-      );
-    }
-  }, []);
-
+  // 🔧 mover aquí la función para usarla en dependencias
   async function handleCredentialResponse(response) {
     const idToken = response.credential;
+
     try {
       const res = await fetch(`${API_BASE}/api/auth/google`, {
         method: "POST",
@@ -33,16 +20,34 @@ export default function GoogleLoginButton({ onLoginSuccess }) {
       }
 
       const data = await res.json();
-      // Guardar token y datos del usuario
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
       if (onLoginSuccess) onLoginSuccess(data.user);
+
     } catch (err) {
       console.error("Login error:", err);
       alert("Error al iniciar sesión: " + err.message);
     }
   }
+
+  useEffect(() => {
+    /* global google */
+    if (window.google) {
+      google.accounts.id.initialize({
+        client_id:
+          "815972207565-etag6mup0ekbg4crmfvpauqejb00936e.apps.googleusercontent.com",
+        callback: handleCredentialResponse, // ahora válido
+        ux_mode: "popup",
+      });
+
+      google.accounts.id.renderButton(
+        document.getElementById("googleSignInDiv"),
+        { theme: "outline", size: "large" }
+      );
+    }
+  }, [handleCredentialResponse]); // 🔧 agregar dependencia
 
   return <div id="googleSignInDiv"></div>;
 }

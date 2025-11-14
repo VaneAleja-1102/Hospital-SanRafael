@@ -3,7 +3,7 @@ import EquipmentList from "../components/EquipmentList";
 import { Link } from "react-router-dom";
 
 export default function Home() {
-  const [refresh, setRefresh] = useState(false);
+  const [refresh] = useState(false); // 🔧 eliminado setRefresh
 
   return (
     <div
@@ -16,7 +16,6 @@ export default function Home() {
     >
       <h1 style={{ marginBottom: "1rem", color: "#222" }}>🧰 Gestión de Equipos</h1>
 
-      {/* ✅ Acciones rápidas */}
       <div
         style={{
           display: "flex",
@@ -25,35 +24,16 @@ export default function Home() {
           marginBottom: "2rem",
         }}
       >
-        <Link
-          to="/create"
-          style={linkBtn}
-        >
-          ➕ Registrar Equipo
-        </Link>
-
-        <Link
-          to="/transaction"
-          style={linkBtn}
-        >
-          📦 Registrar Ingreso/Egreso
-        </Link>
-
-        <Link
-          to="/transactions-history"
-          style={linkBtn}
-        >
-          📊 Ver Movimientos
-        </Link>
+        <Link to="/create" style={linkBtn}>➕ Registrar Equipo</Link>
+        <Link to="/transaction" style={linkBtn}>📦 Registrar Ingreso/Egreso</Link>
+        <Link to="/transactions-history" style={linkBtn}>📊 Ver Movimientos</Link>
       </div>
 
-      {/* ✅ Lista de equipos (usa tu componente reutilizable) */}
       <EquipmentList refreshTrigger={refresh} />
     </div>
   );
 }
 
-// 🔹 Estilo reutilizable para botones de acción
 const linkBtn = {
   backgroundColor: "#1976d2",
   color: "white",
@@ -63,4 +43,3 @@ const linkBtn = {
   fontWeight: "600",
   transition: "all 0.3s ease",
 };
-
