@@ -51,6 +51,9 @@ app.use("/api/auth", authRouter);
 app.use("/api/equipments", verifyJwt, equipmentsRouter);
 app.use("/api/transactions", verifyJwt, transactionsRouter);
 app.use("/api/users", verifyJwt, usersRouter);
+// sirve archivos estáticos desde backend/uploads
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 
 // === START SERVER ===
 app.listen(PORT, async () => {

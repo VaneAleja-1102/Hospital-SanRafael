@@ -64,10 +64,11 @@ export default function EquipmentSelector({ onSelect }) {
           >
             <img
               src={
-                eq.imageUrl
-                  ? `http://localhost:4000${eq.imageUrl}`
-                  : "/default-image.png"
-              }
+  eq.imageUrl
+    ? (eq.imageUrl.startsWith("http") ? eq.imageUrl : `${API_BASE}${eq.imageUrl}`)
+    : "/default-image.png"
+}
+
               alt={eq.type}
               style={{
                 width: "100%",

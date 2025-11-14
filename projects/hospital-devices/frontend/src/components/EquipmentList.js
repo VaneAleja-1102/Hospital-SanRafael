@@ -98,7 +98,7 @@ export default function EquipmentList({ refreshTrigger }) {
                 <td style={td}>
                   {e.imageUrl ? (
                     <img
-                      src={`http://localhost:4000${e.imageUrl}`}
+                      src={e.imageUrl.startsWith("http") ? e.imageUrl : `${API_BASE}${e.imageUrl}`}
                       alt="Equipo"
                       style={{
                         width: "60px",
