@@ -68,8 +68,9 @@ export default function EquipmentSelector({ onSelect }) {
     ? (eq.imageUrl.startsWith("http") ? eq.imageUrl : `${API_BASE}${eq.imageUrl}`)
     : "/default-image.png"
 }
+  alt={eq.type}
+  className="w-20 h-20 object-cover rounded-md mx-auto"
 
-              alt={eq.type}
               style={{
                 width: "100%",
                 height: "100px",
