@@ -18,23 +18,22 @@ export default function TransactionForm() {
     entryTransactionId: "",
   });
 
-  
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // =======================
+  // ============================
   // CARGAR EQUIPOS Y USUARIOS
-  // =======================
+  // ============================
   useEffect(() => {
     loadEquipments();
     loadUsers();
   }, []);
 
-  // =======================
-  // CARGAR LISTA DE USUARIOS
-  // =======================
+  // Cargar usuarios
   const loadUsers = async () => {
     const token = localStorage.getItem("token");
     try {
@@ -49,15 +48,9 @@ export default function TransactionForm() {
     }
   };
 
-  // =======================
-  // CARGAR EQUIPOS
-  // =======================
+  // Cargar equipos
   const loadEquipments = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      setError("No token encontrado. Inicia sesión nuevamente.");
-      return;
-    }
 
     try {
       const res = await fetch(`${API_BASE}/equipments`, {
@@ -66,7 +59,7 @@ export default function TransactionForm() {
           "Content-Type": "application/json",
         },
       });
-      if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
+
       const data = await res.json();
       setEquipments(data.equipments || []);
     } catch (err) {
@@ -75,9 +68,9 @@ export default function TransactionForm() {
     }
   };
 
-  // =======================
+  // ============================
   // CARGAR INGRESOS PENDIENTES
-  // =======================
+  // ============================
   useEffect(() => {
     if (form.type === "Egreso" && form.equipmentId) {
       loadPendingEntries(form.equipmentId);
@@ -93,6 +86,7 @@ export default function TransactionForm() {
         `${API_BASE}/transactions/pending-entries?equipmentId=${equipmentId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       const data = await res.json();
       setPendingEntries(Array.isArray(data) ? data : data.data || []);
     } catch (err) {
@@ -100,19 +94,13 @@ export default function TransactionForm() {
     }
   };
 
-  // =======================
-  // SELECCIÓN DE EQUIPO
-  // =======================
-  const handleEquipmentSelect = (eq) => {
-    setForm({ ...form, equipmentId: eq.id, entryTransactionId: "" });
-    setSelectedEquipment(eq);
-  };
-
-  // =======================
+  // ============================
   // FOTO
-  // =======================
+  // ============================
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
+    setPhotoFile(file);
+
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => setPhotoPreview(reader.result);
@@ -120,20 +108,15 @@ export default function TransactionForm() {
     }
   };
 
-  // =======================
+  // ============================
   // SUBMIT
-  // =======================
+  // ============================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     const token = localStorage.getItem("token");
-    if (!token) {
-      setError("No token. Inicia sesión nuevamente.");
-      setLoading(false);
-      return;
-    }
 
     if (selectedEquipment?.isBiomedical && !photoPreview) {
       setError("Este equipo biomédico requiere una foto");
@@ -151,10 +134,11 @@ export default function TransactionForm() {
       const payload = {
         equipmentId: Number(form.equipmentId),
         type: form.type,
-        registeredBy: form.registeredBy, // ← YA ES STRING
+        userId: Number(form.registeredBy),              // ✔ ID DEL USUARIO
+        registeredBy: users.find(u => u.id == form.registeredBy)?.name || "",
         description: form.description,
         isWorking: form.isWorking,
-        photoUrl: photoPreview || null,
+        photoUrl: photoPreview,
         entryTransactionId:
           form.type === "Egreso" ? Number(form.entryTransactionId) : null,
       };
@@ -177,7 +161,7 @@ export default function TransactionForm() {
       }
     } catch (err) {
       console.error(err);
-      setError("Error de conexión con el servidor");
+      setError("Error de conexión");
     } finally {
       setLoading(false);
     }
@@ -219,7 +203,10 @@ export default function TransactionForm() {
                 className={`equipment-card ${
                   form.equipmentId === eq.id ? "selected" : ""
                 }`}
-                onClick={() => handleEquipmentSelect(eq)}
+                onClick={() => {
+                  setSelectedEquipment(eq);
+                  setForm({ ...form, equipmentId: eq.id });
+                }}
               >
                 <img
                   src={
@@ -252,7 +239,8 @@ export default function TransactionForm() {
               <option value="">-- Seleccionar ingreso --</option>
               {pendingEntries.map((entry) => (
                 <option key={entry.id} value={entry.id}>
-                  Ingreso #{entry.id} – {new Date(entry.createdAt).toLocaleString()}
+                  Ingreso #{entry.id} –{" "}
+                  {new Date(entry.createdAt).toLocaleString()}
                 </option>
               ))}
             </select>
@@ -264,12 +252,14 @@ export default function TransactionForm() {
           <label>Registrado por</label>
           <select
             value={form.registeredBy}
-            onChange={(e) => setForm({ ...form, registeredBy: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, registeredBy: e.target.value })
+            }
             required
           >
             <option value="">-- Seleccionar usuario --</option>
             {users.map((u) => (
-              <option key={u.id} value={u.name}>
+              <option key={u.id} value={u.id}>
                 {u.name}
               </option>
             ))}
@@ -307,12 +297,8 @@ export default function TransactionForm() {
         {selectedEquipment?.isBiomedical && (
           <div className="form-group">
             <label>Foto del equipo (requerida)</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-              required
-            />
+            <input type="file" accept="image/*" onChange={handlePhotoChange} />
+
             {photoPreview && (
               <img
                 src={photoPreview}

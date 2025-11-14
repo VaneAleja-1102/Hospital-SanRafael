@@ -1,15 +1,19 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const { User } = require("../../models");
+const { authenticateToken } = require("../middlewares/auth");
 
-// Importamos el array de usuarios desde auth.js
-const auth = require('./auth');
+router.get("/", authenticateToken, async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: ["id", "name", "email"]
+    });
 
-// 👉 Extraemos la variable `users` que está declarada dentro de auth.js
-const users = auth.users;
-
-// GET /api/users → lista todos los usuarios registrados
-router.get('/', (req, res) => {
-  res.json({ users });
+    res.json({ users });
+  } catch (error) {
+    console.error("❌ Error cargando usuarios:", error);
+    res.status(500).json({ error: "Error al cargar usuarios" });
+  }
 });
 
 module.exports = router;
