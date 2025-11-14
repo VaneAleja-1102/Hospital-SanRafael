@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../config";
+import {API_BASE } from "../config";
 
 export default function EquipmentForm({ onEquipmentCreated }) {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export default function EquipmentForm({ onEquipmentCreated }) {
       Object.entries(form).forEach(([key, value]) => formData.append(key, value));
       if (image) formData.append("image", image);
 
-      const res = await fetch(`${API_BASE_URL}/equipments`, {
+      const res = await fetch(`${API_BASE}/equipments`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

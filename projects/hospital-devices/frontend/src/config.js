@@ -1,1 +1,2 @@
-export const API_BASE = process.env.REACT_APP_API_URL;
+
+export const API_BASE = "https://backend-hospital-sm4e.onrender.com/api";
