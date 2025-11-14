@@ -25,15 +25,15 @@ export default function TransactionForm() {
   const navigate = useNavigate();
 
   // =======================
-  // Cargar equipos
+  // CARGAR EQUIPOS Y USUARIOS
   // =======================
   useEffect(() => {
     loadEquipments();
-    loadUsers(); // <-- CARGAR USUARIOS
+    loadUsers();
   }, []);
 
   // =======================
-  // Cargar usuarios
+  // CARGAR LISTA DE USUARIOS
   // =======================
   const loadUsers = async () => {
     const token = localStorage.getItem("token");
@@ -50,7 +50,7 @@ export default function TransactionForm() {
   };
 
   // =======================
-  // Cargar equipos
+  // CARGAR EQUIPOS
   // =======================
   const loadEquipments = async () => {
     const token = localStorage.getItem("token");
@@ -76,7 +76,7 @@ export default function TransactionForm() {
   };
 
   // =======================
-  // Cargar ingresos pendientes
+  // CARGAR INGRESOS PENDIENTES
   // =======================
   useEffect(() => {
     if (form.type === "Egreso" && form.equipmentId) {
@@ -101,16 +101,15 @@ export default function TransactionForm() {
   };
 
   // =======================
-  // Manejar selección de equipo
+  // SELECCIÓN DE EQUIPO
   // =======================
   const handleEquipmentSelect = (eq) => {
     setForm({ ...form, equipmentId: eq.id, entryTransactionId: "" });
     setSelectedEquipment(eq);
-    if (form.type === "Egreso") loadPendingEntries(eq.id);
   };
 
   // =======================
-  // Manejar foto
+  // FOTO
   // =======================
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -123,7 +122,7 @@ export default function TransactionForm() {
   };
 
   // =======================
-  // Enviar formulario
+  // SUBMIT
   // =======================
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -137,14 +136,14 @@ export default function TransactionForm() {
       return;
     }
 
-    if (selectedEquipment?.isBiomedical && !photoFile && !photoPreview) {
+    if (selectedEquipment?.isBiomedical && !photoPreview) {
       setError("Este equipo biomédico requiere una foto");
       setLoading(false);
       return;
     }
 
     if (form.type === "Egreso" && !form.entryTransactionId) {
-      setError("Debe seleccionar el registro de ingreso correspondiente");
+      setError("Debe seleccionar el ingreso correspondiente");
       setLoading(false);
       return;
     }
@@ -153,7 +152,7 @@ export default function TransactionForm() {
       const payload = {
         equipmentId: Number(form.equipmentId),
         type: form.type,
-        registeredBy: Number(form.registeredBy), // <-- AHORA ES NUMÉRICO
+        registeredBy: form.registeredBy, // ← YA ES STRING
         description: form.description,
         isWorking: form.isWorking,
         photoUrl: photoPreview || null,
@@ -191,6 +190,7 @@ export default function TransactionForm() {
       {error && <div className="alert alert-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
+
         {/* Tipo */}
         <div className="form-group">
           <label>Tipo de Movimiento</label>
@@ -253,31 +253,24 @@ export default function TransactionForm() {
               <option value="">-- Seleccionar ingreso --</option>
               {pendingEntries.map((entry) => (
                 <option key={entry.id} value={entry.id}>
-                  Ingreso #{entry.id} -{" "}
-                  {new Date(entry.createdAt).toLocaleString()}{" "}
-                  {entry.registeredBy ? `por ${entry.registeredBy}` : ""}
+                  Ingreso #{entry.id} – {new Date(entry.createdAt).toLocaleString()}
                 </option>
               ))}
             </select>
-            {pendingEntries.length === 0 && (
-              <small>No hay ingresos pendientes</small>
-            )}
           </div>
         )}
 
-        {/* Selector de Usuarios */}
+        {/* Usuarios */}
         <div className="form-group">
           <label>Registrado por</label>
           <select
             value={form.registeredBy}
-            onChange={(e) =>
-              setForm({ ...form, registeredBy: Number(e.target.value) })
-            }
+            onChange={(e) => setForm({ ...form, registeredBy: e.target.value })}
             required
           >
             <option value="">-- Seleccionar usuario --</option>
             {users.map((u) => (
-              <option key={u.id} value={u.id}>
+              <option key={u.id} value={u.name}>
                 {u.name}
               </option>
             ))}
@@ -331,7 +324,6 @@ export default function TransactionForm() {
           </div>
         )}
 
-        {/* Botón */}
         <button type="submit" disabled={loading}>
           {loading ? "⏳ Registrando..." : `✓ Registrar ${form.type}`}
         </button>

@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 4000;
 // === 🌐 CORS ===
 app.use(
   cors({
-    origin: "*", // En producción Render usa dominio distinto
+    origin: "*",
     credentials: true,
   })
 );
@@ -20,6 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // === 🖼️ SERVIR ARCHIVOS SUBIDOS ===
+// IMPORTANTE: La carpeta debe estar en: backend/uploads/
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // === 🔐 JWT Middleware ===
@@ -44,12 +45,12 @@ const verifyJwt = (req, res, next) => {
 const authRouter = require("./routes/auth");
 const equipmentsRouter = require("./routes/equipments");
 const transactionsRouter = require("./routes/transactions");
+const usersRouter = require("./routes/users");
 
 app.use("/api/auth", authRouter);
 app.use("/api/equipments", verifyJwt, equipmentsRouter);
 app.use("/api/transactions", verifyJwt, transactionsRouter);
-app.use('/api/users', require('./routes/users'));
-
+app.use("/api/users", verifyJwt, usersRouter);
 
 // === START SERVER ===
 app.listen(PORT, async () => {
