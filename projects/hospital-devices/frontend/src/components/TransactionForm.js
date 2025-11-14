@@ -19,7 +19,7 @@ export default function TransactionForm() {
   });
 
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [photoFile, setPhotoFile] = useState(null);
+
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -99,7 +99,6 @@ export default function TransactionForm() {
   // ============================
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
-    setPhotoFile(file);
 
     if (file) {
       const reader = new FileReader();
@@ -135,7 +134,7 @@ export default function TransactionForm() {
         equipmentId: Number(form.equipmentId),
         type: form.type,
         userId: Number(form.registeredBy),              // ✔ ID DEL USUARIO
-        registeredBy: users.find(u => u.id == form.registeredBy)?.name || "",
+        registeredBy: users.find(u => u.id === form.registeredBy)?.name || "",
         description: form.description,
         isWorking: form.isWorking,
         photoUrl: photoPreview,
