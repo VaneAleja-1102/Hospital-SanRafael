@@ -18,7 +18,7 @@ export default function TransactionForm() {
     entryTransactionId: "",
   });
 
-  const [photoFile, setPhotoFile] = useState(null);
+  
   const [photoPreview, setPhotoPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -114,7 +114,6 @@ export default function TransactionForm() {
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setPhotoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => setPhotoPreview(reader.result);
       reader.readAsDataURL(file);
