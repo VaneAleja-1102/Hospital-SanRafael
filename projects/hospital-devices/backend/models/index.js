@@ -8,17 +8,10 @@ require("dotenv").config();
 const basename = path.basename(__filename);
 const db = {};
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,   // DB name
-  process.env.DB_USER,   // user
-  process.env.DB_PASSWORD, // pass
-  {
-    host: process.env.DB_HOST, // host
-    port: process.env.DB_PORT, // port
-    dialect: "mysql",
-    logging: false,
-  }
-);
+const sequelize = new Sequelize(process.env.MYSQL_URL, {
+  dialect: "mysql",
+  logging: false,
+});
 
 // === Cargar modelos dinámicamente ===
 fs.readdirSync(__dirname)
