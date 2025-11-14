@@ -7,6 +7,8 @@ export default function TransactionForm() {
   const [equipments, setEquipments] = useState([]);
   const [pendingEntries, setPendingEntries] = useState([]);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
+  const [users, setUsers] = useState([]);
+
   const [form, setForm] = useState({
     equipmentId: "",
     type: "Ingreso",
@@ -15,24 +17,41 @@ export default function TransactionForm() {
     isWorking: true,
     entryTransactionId: "",
   });
+
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // =======================
+  // Cargar equipos
+  // =======================
   useEffect(() => {
     loadEquipments();
+    loadUsers(); // <-- CARGAR USUARIOS
   }, []);
 
-  useEffect(() => {
-    if (form.type === "Egreso" && form.equipmentId) {
-      loadPendingEntries(form.equipmentId);
-    } else {
-      setPendingEntries([]);
-    }
-  }, [form.type, form.equipmentId]);
+  // =======================
+  // Cargar usuarios
+  // =======================
+  const loadUsers = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${API_BASE}/users`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
+      const data = await res.json();
+      setUsers(data.users || []);
+    } catch (err) {
+      console.error("❌ Error cargando usuarios:", err);
+    }
+  };
+
+  // =======================
+  // Cargar equipos
+  // =======================
   const loadEquipments = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -56,6 +75,17 @@ export default function TransactionForm() {
     }
   };
 
+  // =======================
+  // Cargar ingresos pendientes
+  // =======================
+  useEffect(() => {
+    if (form.type === "Egreso" && form.equipmentId) {
+      loadPendingEntries(form.equipmentId);
+    } else {
+      setPendingEntries([]);
+    }
+  }, [form.type, form.equipmentId]);
+
   const loadPendingEntries = async (equipmentId) => {
     const token = localStorage.getItem("token");
     try {
@@ -70,12 +100,18 @@ export default function TransactionForm() {
     }
   };
 
+  // =======================
+  // Manejar selección de equipo
+  // =======================
   const handleEquipmentSelect = (eq) => {
     setForm({ ...form, equipmentId: eq.id, entryTransactionId: "" });
     setSelectedEquipment(eq);
     if (form.type === "Egreso") loadPendingEntries(eq.id);
   };
 
+  // =======================
+  // Manejar foto
+  // =======================
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -86,6 +122,9 @@ export default function TransactionForm() {
     }
   };
 
+  // =======================
+  // Enviar formulario
+  // =======================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -114,7 +153,7 @@ export default function TransactionForm() {
       const payload = {
         equipmentId: Number(form.equipmentId),
         type: form.type,
-        registeredBy: form.registeredBy,
+        registeredBy: Number(form.registeredBy), // <-- AHORA ES NUMÉRICO
         description: form.description,
         isWorking: form.isWorking,
         photoUrl: photoPreview || null,
@@ -152,6 +191,7 @@ export default function TransactionForm() {
       {error && <div className="alert alert-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
+        {/* Tipo */}
         <div className="form-group">
           <label>Tipo de Movimiento</label>
           <select
@@ -170,6 +210,7 @@ export default function TransactionForm() {
           </select>
         </div>
 
+        {/* Equipos */}
         <div className="form-group">
           <label>Selecciona el equipo</label>
           <div className="equipment-grid">
@@ -198,6 +239,7 @@ export default function TransactionForm() {
           </div>
         </div>
 
+        {/* Ingresos pendientes */}
         {form.type === "Egreso" && form.equipmentId && (
           <div className="form-group">
             <label>Seleccionar Ingreso</label>
@@ -223,17 +265,26 @@ export default function TransactionForm() {
           </div>
         )}
 
+        {/* Selector de Usuarios */}
         <div className="form-group">
           <label>Registrado por</label>
-          <input
+          <select
             value={form.registeredBy}
             onChange={(e) =>
-              setForm({ ...form, registeredBy: e.target.value })
+              setForm({ ...form, registeredBy: Number(e.target.value) })
             }
             required
-          />
+          >
+            <option value="">-- Seleccionar usuario --</option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name}
+              </option>
+            ))}
+          </select>
         </div>
 
+        {/* Descripción */}
         <div className="form-group">
           <label>Descripción</label>
           <textarea
@@ -246,6 +297,7 @@ export default function TransactionForm() {
           ></textarea>
         </div>
 
+        {/* ¿Funciona? */}
         <div className="form-group">
           <label>
             <input
@@ -259,6 +311,7 @@ export default function TransactionForm() {
           </label>
         </div>
 
+        {/* Foto */}
         {selectedEquipment?.isBiomedical && (
           <div className="form-group">
             <label>Foto del equipo (requerida)</label>
@@ -278,6 +331,7 @@ export default function TransactionForm() {
           </div>
         )}
 
+        {/* Botón */}
         <button type="submit" disabled={loading}>
           {loading ? "⏳ Registrando..." : `✓ Registrar ${form.type}`}
         </button>

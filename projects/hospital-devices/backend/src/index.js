@@ -48,6 +48,7 @@ const transactionsRouter = require("./routes/transactions");
 app.use("/api/auth", authRouter);
 app.use("/api/equipments", verifyJwt, equipmentsRouter);
 app.use("/api/transactions", verifyJwt, transactionsRouter);
+app.use('/api/users', require('./routes/users'));
 
 
 // === START SERVER ===

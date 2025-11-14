@@ -142,3 +142,4 @@ router.get('/me', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.users = users;
