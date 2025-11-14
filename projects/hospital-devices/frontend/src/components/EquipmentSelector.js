@@ -1,6 +1,6 @@
 // frontend/src/components/EquipmentSelector.js
 import React, { useEffect, useState } from "react";
-import { API_BASE } from "./config";
+import { API_BASE } from "../config";
 
 export default function EquipmentSelector({ onSelect }) {
   const [equipments, setEquipments] = useState([]);

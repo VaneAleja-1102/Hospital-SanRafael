@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { API_BASE } from "./config";
+import { API_BASE } from "../config";
 import { useNavigate } from "react-router-dom";
 import "./TransactionForm.css";
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GoogleLoginButton from '../components/GoogleLoginButton';
-import { API_BASE } from './config'; 
+import { API_BASE } from '../config'; 
 
 export default function LoginPage({ onLogin }) {
   const navigate = useNavigate();
