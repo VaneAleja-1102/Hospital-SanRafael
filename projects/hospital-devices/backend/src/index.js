@@ -49,15 +49,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/equipments", verifyJwt, equipmentsRouter);
 app.use("/api/transactions", verifyJwt, transactionsRouter);
 
-// === 🟢 SERVIR FRONTEND EN PRODUCCIÓN ===
-// Render NO sirve el frontend solo. Tú lo sirves desde Node.
-/*const clientPath = path.join(__dirname, "../../frontend/build");
-
-app.use(express.static(clientPath));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(clientPath, "index.html"));
-});*/
 
 // === START SERVER ===
 app.listen(PORT, async () => {
