@@ -1,10 +1,31 @@
 {
   "development": {
-    "use_env_variable": "MYSQL_URL",
-    "dialect": "mysql"
+    "username": "root",
+    "password": "tu_password_aqui",
+    "database": "hospital_devices",
+    "host": "127.0.0.1",
+    "port": 3306,
+    "dialect": "mysql",
+    "logging": false,
+    "dialectOptions": {
+      "charset": "utf8mb4"
+    },
+    "pool": {
+      "max": 5,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
   },
   "production": {
     "use_env_variable": "MYSQL_URL",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "dialectOptions": {
+      "charset": "utf8mb4",
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   }
 }
