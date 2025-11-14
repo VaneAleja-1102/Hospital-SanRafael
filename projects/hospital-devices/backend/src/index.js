@@ -8,7 +8,6 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// === 🌐 CORS ===
 app.use(
   cors({
     origin: "*",
@@ -19,11 +18,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// === 🖼️ SERVIR ARCHIVOS SUBIDOS ===
-// IMPORTANTE: La carpeta debe estar en: backend/uploads/
+// 🟢 Servir imágenes correctamente
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// === 🔐 JWT Middleware ===
 const verifyJwt = (req, res, next) => {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith("Bearer ")) {
@@ -32,8 +29,7 @@ const verifyJwt = (req, res, next) => {
 
   const token = auth.split(" ")[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch (err) {
     console.error("JWT error:", err);
@@ -41,7 +37,6 @@ const verifyJwt = (req, res, next) => {
   }
 };
 
-// === ROUTES ===
 const authRouter = require("./routes/auth");
 const equipmentsRouter = require("./routes/equipments");
 const transactionsRouter = require("./routes/transactions");
@@ -51,11 +46,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/equipments", verifyJwt, equipmentsRouter);
 app.use("/api/transactions", verifyJwt, transactionsRouter);
 app.use("/api/users", verifyJwt, usersRouter);
-// sirve archivos estáticos desde backend/uploads
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-
-// === START SERVER ===
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
 

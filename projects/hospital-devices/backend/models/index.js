@@ -9,14 +9,13 @@ require("dotenv").config();
 const basename = path.basename(__filename);
 const db = {};
 
-// === ✅ Conectar usando variables correctas ===
 const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
+  process.env.MYSQLDATABASE,   // DB name
+  process.env.MYSQLUSER,       // user
+  process.env.MYSQLPASSWORD,   // pass
   {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
+    host: process.env.MYSQLHOST,   // host
+    port: process.env.MYSQLPORT,   // port
     dialect: "mysql",
     logging: false,
   }
@@ -48,11 +47,9 @@ Object.keys(db).forEach((modelName) => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
 sequelize.sync({ alter: true })
-  .then(() => {
-    console.log("✅ Tablas sincronizadas correctamente");
-  })
-  .catch(err => {
-    console.error("❌ Error al sincronizar tablas:", err);
-  });
+  .then(() => console.log("✅ Tablas sincronizadas correctamente"))
+  .catch(err => console.error("❌ Error al sincronizar tablas:", err));
+
 module.exports = db;
