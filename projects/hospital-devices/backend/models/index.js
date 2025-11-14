@@ -9,14 +9,14 @@ require("dotenv").config();
 const basename = path.basename(__filename);
 const db = {};
 
-// === ✅ Conectar usando variables de entorno ===
+// === ✅ Conectar usando variables correctas ===
 const sequelize = new Sequelize(
-  process.env.MYSQLDATABASE,
-  process.env.MYSQLUSER,
-  process.env.MYSQLPASSWORD,
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
   {
-    host: process.env.MYSQLHOST,
-    port: process.env.MYSQLPORT,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: "mysql",
     logging: false,
   }
