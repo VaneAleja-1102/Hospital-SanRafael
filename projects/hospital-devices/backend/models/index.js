@@ -8,16 +8,15 @@ require("dotenv").config();
 const basename = path.basename(__filename);
 const db = {};
 
-// === CONEXIÓN CORRECTA PARA RAILWAY ===
 const sequelize = new Sequelize(
-  process.env.MYSQLDATABASE,
-  process.env.MYSQLUSER,
-  process.env.MYSQLPASSWORD,
+  process.env.MYSQLDATABASE,      // DB name
+  process.env.MYSQLUSER,          // user
+  process.env.MYSQLPASSWORD,      // password
   {
-    host: process.env.MYSQLHOST,
-    port: process.env.MYSQLPORT,
+    host: process.env.MYSQLHOST,  // host
+    port: process.env.MYSQLPORT,  // port
     dialect: "mysql",
-    logging: false,
+    logging: false
   }
 );
 
@@ -48,8 +47,7 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-sequelize
-  .sync({ alter: true })
+sequelize.sync({ alter: true })
   .then(() => console.log("✅ Tablas sincronizadas correctamente"))
   .catch(err => console.error("❌ Error al sincronizar tablas:", err));
 
