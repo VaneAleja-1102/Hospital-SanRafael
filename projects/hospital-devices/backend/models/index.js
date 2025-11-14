@@ -1,4 +1,3 @@
-// backend/models/index.js
 "use strict";
 
 const fs = require("fs");
@@ -10,12 +9,12 @@ const basename = path.basename(__filename);
 const db = {};
 
 const sequelize = new Sequelize(
-  process.env.MYSQLDATABASE,   // DB name
-  process.env.MYSQLUSER,       // user
-  process.env.MYSQLPASSWORD,   // pass
+  process.env.DB_NAME,   // DB name
+  process.env.DB_USER,   // user
+  process.env.DB_PASSWORD, // pass
   {
-    host: process.env.MYSQLHOST,   // host
-    port: process.env.MYSQLPORT,   // port
+    host: process.env.DB_HOST, // host
+    port: process.env.DB_PORT, // port
     dialect: "mysql",
     logging: false,
   }
