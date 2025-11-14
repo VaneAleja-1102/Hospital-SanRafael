@@ -1,3 +1,4 @@
+// frontend/src/components/TransactionForm.js
 import React, { useEffect, useState } from "react";
 import { API_BASE } from "../config";
 import { useNavigate } from "react-router-dom";
@@ -19,8 +20,6 @@ export default function TransactionForm() {
   });
 
   const [photoPreview, setPhotoPreview] = useState(null);
-
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -108,6 +107,25 @@ export default function TransactionForm() {
   };
 
   // ============================
+  // FUNCIÓN PARA OBTENER IMAGEN
+  // ============================
+  const getEquipmentImage = (equipment) => {
+    // Si tiene imageUrl del backend
+    if (equipment.imageUrl) {
+      // Si ya es una URL completa
+      if (equipment.imageUrl.startsWith("http")) {
+        return equipment.imageUrl;
+      }
+      // Si es una ruta relativa del backend
+      return `${API_BASE.replace("/api", "")}${equipment.imageUrl}`;
+    }
+
+    // Si no tiene imagen, usar imagen por defecto según el tipo
+    const equipmentType = equipment.type.toLowerCase().replace(/\s+/g, '-');
+    return `/images/equipments/${equipmentType}.png`;
+  };
+
+  // ============================
   // SUBMIT
   // ============================
   const handleSubmit = async (e) => {
@@ -133,7 +151,7 @@ export default function TransactionForm() {
       const payload = {
         equipmentId: Number(form.equipmentId),
         type: form.type,
-        userId: Number(form.registeredBy),              // ✔ ID DEL USUARIO
+        userId: Number(form.registeredBy),
         registeredBy: users.find(u => u.id === form.registeredBy)?.name || "",
         description: form.description,
         isWorking: form.isWorking,
@@ -208,11 +226,11 @@ export default function TransactionForm() {
                 }}
               >
                 <img
-                  src={
-                    eq.imageUrl
-                      ? `${API_BASE.replace("/api", "")}${eq.imageUrl}`
-                      : "https://via.placeholder.com/120?text=Sin+imagen"
-                  }
+                  src={getEquipmentImage(eq)}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/images/equipments/equipment-default.png';
+                  }}
                   alt={eq.type}
                   className="equipment-image"
                 />
