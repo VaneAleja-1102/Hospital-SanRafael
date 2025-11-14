@@ -10,7 +10,7 @@ export default function EquipmentList({ refreshTrigger }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch(`${API_BASE}/equipments`, { // ✅ quitamos /api duplicado
+    fetch(`${API_BASE}/equipments`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -93,39 +93,48 @@ export default function EquipmentList({ refreshTrigger }) {
             </tr>
           </thead>
           <tbody>
-            {equipments.map((e) => (
-              <tr key={e.id}>
-                <td style={td}>
-                  {e.imageUrl ? (
-                    <img
-                      src={e.imageUrl.startsWith("http") ? e.imageUrl : `${API_BASE}${e.imageUrl}`}
-                      alt="Equipo"
-                      style={{
-                        width: "60px",
-                        height: "60px",
-                        borderRadius: "8px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  ) : (
-                    <span style={{ color: "#aaa" }}>Sin imagen</span>
-                  )}
-                </td>
-                <td style={td}>#{e.id}</td>
-                <td style={td}>{e.type}</td>
-                <td style={td}>{e.brand || "-"}</td>
-                <td style={td}>{e.model || "-"}</td>
-                <td style={td}>{e.serial || "-"}</td>
-                <td style={td}>{e.ownerName || "-"}</td>
-                <td style={td}>
-                  {e.notes
-                    ? e.notes.length > 50
-                      ? e.notes.substring(0, 50) + "..."
-                      : e.notes
-                    : "-"}
-                </td>
-              </tr>
-            ))}
+            {equipments.map((e) => {
+              // 🔥 AQUI IMPRIMIMOS LA URL REAL DE LA IMAGEN
+              console.log("IMAGE URL DEL EQUIPO:", e.imageUrl);
+
+              return (
+                <tr key={e.id}>
+                  <td style={td}>
+                    {e.imageUrl ? (
+                      <img
+                        src={
+                          e.imageUrl.startsWith("http")
+                            ? e.imageUrl
+                            : `${API_BASE}${e.imageUrl.replace("/api","")}`
+                        }
+                        alt="Equipo"
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          borderRadius: "8px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <span style={{ color: "#aaa" }}>Sin imagen</span>
+                    )}
+                  </td>
+                  <td style={td}>#{e.id}</td>
+                  <td style={td}>{e.type}</td>
+                  <td style={td}>{e.brand || "-"}</td>
+                  <td style={td}>{e.model || "-"}</td>
+                  <td style={td}>{e.serial || "-"}</td>
+                  <td style={td}>{e.ownerName || "-"}</td>
+                  <td style={td}>
+                    {e.notes
+                      ? e.notes.length > 50
+                        ? e.notes.substring(0, 50) + "..."
+                        : e.notes
+                      : "-"}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
