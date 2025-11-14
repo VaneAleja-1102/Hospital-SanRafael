@@ -8,10 +8,18 @@ require("dotenv").config();
 const basename = path.basename(__filename);
 const db = {};
 
-const sequelize = new Sequelize(process.env.MYSQL_URL, {
-  dialect: "mysql",
-  logging: false,
-});
+// === CONEXIÓN CORRECTA PARA RAILWAY ===
+const sequelize = new Sequelize(
+  process.env.MYSQLDATABASE,
+  process.env.MYSQLUSER,
+  process.env.MYSQLPASSWORD,
+  {
+    host: process.env.MYSQLHOST,
+    port: process.env.MYSQLPORT,
+    dialect: "mysql",
+    logging: false,
+  }
+);
 
 // === Cargar modelos dinámicamente ===
 fs.readdirSync(__dirname)
@@ -40,7 +48,8 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-sequelize.sync({ alter: true })
+sequelize
+  .sync({ alter: true })
   .then(() => console.log("✅ Tablas sincronizadas correctamente"))
   .catch(err => console.error("❌ Error al sincronizar tablas:", err));
 
