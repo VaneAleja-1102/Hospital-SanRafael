@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { API_BASE } from "../config";
+import { API_BASE } from "./config";
 import { Link } from "react-router-dom";
 
 export default function EquipmentList({ refreshTrigger }) {

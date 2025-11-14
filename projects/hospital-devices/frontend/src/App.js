@@ -9,7 +9,7 @@ import TransactionForm from './components/TransactionForm';
 import TransactionsHistory from './pages/TransactionsHistory';
 import RegisterTransaction from "./pages/RegisterTransaction";
 import './App.css';
-import { API_BASE } from '../config';
+import { API_BASE } from './config';
 
 
 // 🔹 Header condicional (no aparece en /login ni /)

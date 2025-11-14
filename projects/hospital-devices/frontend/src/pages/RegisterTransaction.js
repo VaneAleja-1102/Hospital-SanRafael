@@ -1,7 +1,7 @@
 // frontend/src/pages/RegisterTransaction.js
 import React, { useState } from "react";
 import EquipmentSelector from "../components/EquipmentSelector";
-import { API_BASE } from "../config";
+import { API_BASE } from "./config";
 
 export default function RegisterTransaction() {
   const [selectedEquipment, setSelectedEquipment] = useState(null);

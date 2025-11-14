@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { API_BASE } from "../config";
+import { API_BASE } from "./config";
 
 export default function GoogleLoginButton({ onLoginSuccess }) {
 
