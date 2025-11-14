@@ -103,10 +103,10 @@ export default function EquipmentList({ refreshTrigger }) {
                     {e.imageUrl ? (
                       <img
                         src={
-                          e.imageUrl.startsWith("http")
-                            ? e.imageUrl
-                            : `${API_BASE}${e.imageUrl.replace("/api","")}`
-                        }
+    equipments.imageUrl?.startsWith("http")
+      ? equipments.imageUrl
+      : `${API_BASE.replace("/api", "")}${equipments.imageUrl}`
+  }
                         alt="Equipo"
                         style={{
                           width: "60px",
