@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GoogleLoginButton from '../components/GoogleLoginButton';
+import { API_BASE } from '../config'; 
 
 export default function LoginPage({ onLogin }) {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export default function LoginPage({ onLogin }) {
         ? { email: formData.email, password: formData.password, name: formData.name }
         : { email: formData.email, password: formData.password };
 
-      const res = await fetch(`http://localhost:4000/api${endpoint}`, {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)

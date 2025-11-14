@@ -9,6 +9,8 @@ import TransactionForm from './components/TransactionForm';
 import TransactionsHistory from './pages/TransactionsHistory';
 import RegisterTransaction from "./pages/RegisterTransaction";
 import './App.css';
+import { API_BASE } from '../config';
+
 
 // 🔹 Header condicional (no aparece en /login ni /)
 function Header({ user }) {
@@ -54,7 +56,7 @@ function App() {
       const token = localStorage.getItem('token');
       if (!token) return;
       try {
-        const res = await fetch('http://localhost:4000/api/auth/me', {
+        const res = await fetch(`${API_BASE}/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('Invalid token');
